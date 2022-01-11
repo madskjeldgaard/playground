@@ -110,10 +110,13 @@ end
 
 local function clear_entry(bufnr)
   local entry = M._entries[bufnr]
-
-  close_buf(entry.display_bufnr)
-  close_buf(entry.query_bufnr)
-  M._entries[bufnr] = nil
+	if entry ~= nil then
+		close_buf(entry.display_bufnr)
+		close_buf(entry.query_bufnr)
+		M._entries[bufnr] = nil
+	else
+		print("Trying to use entry that does not exist(yet)")
+	end
 end
 
 local function is_buf_visible(bufnr)
@@ -217,6 +220,10 @@ local function setup_buf(for_buf)
   end
   api.nvim_buf_attach(buf, false, {
     on_detach = function()
+		-- print("buf attach called")
+		-- print("for_buf: " .. for_buf)
+
+		-- print("buf: " .. buf)
       clear_entry(for_buf)
     end,
   })
@@ -624,13 +631,19 @@ function M.toggle_query_editor(bufnr)
 end
 
 function M.open(bufnr)
-  bufnr = bufnr or api.nvim_get_current_buf()
+  bufnr = api.nvim_get_current_buf()
 
   local display_buf = setup_buf(bufnr)
   local current_window = api.nvim_get_current_win()
 
+  -- print("bufnr:" .. bufnr)
+  -- print("window: " .. current_window)
+
   M._entries[bufnr].display_bufnr = display_buf
-  vim.cmd "vsplit"
+
+  print("filetype: " .. vim.bo.filetype)
+  -- print("m entries: " .. M._entries[bufnr].display_bufnr)
+  vim.cmd("vsplit")
   vim.cmd(string.format("buffer %d", display_buf))
 
   api.nvim_win_set_option(0, "spell", false)
@@ -638,7 +651,9 @@ function M.open(bufnr)
   api.nvim_win_set_option(0, "relativenumber", false)
   api.nvim_win_set_option(0, "cursorline", false)
 
-  api.nvim_set_current_win(current_window)
+  print(display_buf)
+
+  -- api.nvim_set_current_win(current_window)
 
   return display_buf
 end
@@ -762,7 +777,7 @@ function M.attach(bufnr)
 end
 
 function M.detach(bufnr)
-  clear_entry(bufnr)
+  -- clear_entry(bufnr)
   vim.cmd(string.format("autocmd! TreesitterPlayground_%d CursorMoved", bufnr))
   vim.cmd(string.format("autocmd! TreesitterPlayground_%d BufLeave", bufnr))
 end
