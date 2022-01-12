@@ -220,10 +220,6 @@ local function setup_buf(for_buf)
   end
   api.nvim_buf_attach(buf, false, {
     on_detach = function()
-		-- print("buf attach called")
-		-- print("for_buf: " .. for_buf)
-
-		-- print("buf: " .. buf)
       clear_entry(for_buf)
     end,
   })
@@ -636,13 +632,8 @@ function M.open(bufnr)
   local display_buf = setup_buf(bufnr)
   local current_window = api.nvim_get_current_win()
 
-  -- print("bufnr:" .. bufnr)
-  -- print("window: " .. current_window)
-
   M._entries[bufnr].display_bufnr = display_buf
 
-  print("filetype: " .. vim.bo.filetype)
-  -- print("m entries: " .. M._entries[bufnr].display_bufnr)
   vim.cmd("vsplit")
   vim.cmd(string.format("buffer %d", display_buf))
 
@@ -650,8 +641,6 @@ function M.open(bufnr)
   api.nvim_win_set_option(0, "number", false)
   api.nvim_win_set_option(0, "relativenumber", false)
   api.nvim_win_set_option(0, "cursorline", false)
-
-  print(display_buf)
 
   -- api.nvim_set_current_win(current_window)
 
